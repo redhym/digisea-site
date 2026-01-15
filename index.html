@@ -225,9 +225,7 @@
 
           <!-- Form wrapper (we hide this after submit) -->
           <div id="formWrap">
-            <form id="leadForm" method="POST"
-                  action="https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec"
-                  class="space-y-4">
+            <form id="leadForm" method="POST" class="space-y-4">
 
               <div>
                 <label class="text-sm font-medium">Name</label>
@@ -292,69 +290,95 @@
     </div>
   </footer>
 
-  <script>
-    // Footer year
-    const yearEl = document.getElementById("year");
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
+<script>
+  // === CONFIG: put your Apps Script /exec URL here ===
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec";
 
-    // Detect successful submission via query param
-    const params = new URLSearchParams(window.location.search);
-    const submitted = params.get("submitted") === "true";
+  // Footer year
+  const yearEl = document.getElementById("year");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-    const thankyou = document.getElementById("thankyou");
-    const formWrap = document.getElementById("formWrap");
-    const form = document.getElementById("leadForm");
-    const btn = document.getElementById("submitBtn");
-    const newRequestLink = document.getElementById("newRequestLink");
+  const thankyou = document.getElementById("thankyou");
+  const formWrap = document.getElementById("formWrap");
+  const form = document.getElementById("leadForm");
+  const btn = document.getElementById("submitBtn");
+  const newRequestLink = document.getElementById("newRequestLink");
 
-    if (submitted) {
-      // Show thank-you, hide form
-      if (thankyou) thankyou.classList.remove("hidden");
-      if (formWrap) formWrap.classList.add("hidden");
+  function showSuccessUI() {
+    if (thankyou) thankyou.classList.remove("hidden");
+    if (formWrap) formWrap.classList.add("hidden");
+    if (thankyou) thankyou.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-      if (thankyou) thankyou.scrollIntoView({ behavior: "smooth", block: "start" });
+  function resetForNewRequest() {
+    if (thankyou) thankyou.classList.add("hidden");
+    if (formWrap) formWrap.classList.remove("hidden");
+    if (form) form.reset();
 
-      // Reset Turnstile token after redirect (prevents duplicate token errors)
-      if (window.turnstile) {
-        try { window.turnstile.reset(); } catch (e) {}
-      }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Request Free Audit";
     }
 
-    // Prevent double-submit
-    if (form && btn) {
-      form.addEventListener("submit", () => {
-        btn.disabled = true;
-        btn.textContent = "Sending…";
-      });
+    if (window.turnstile) {
+      try { window.turnstile.reset(); } catch (e) {}
     }
+  }
 
-    // Submit another request (cleans URL and shows form again)
-    if (newRequestLink) {
-      newRequestLink.addEventListener("click", (e) => {
-        e.preventDefault();
+  // Submit handler (no page navigation)
+  if (form && btn) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-        // Remove query param without reloading
-        const cleanUrl = window.location.pathname + "#contact";
-        history.replaceState(null, "", cleanUrl);
+      btn.disabled = true;
+      btn.textContent = "Sending…";
 
-        // Hide thank-you, show form
-        if (thankyou) thankyou.classList.add("hidden");
-        if (formWrap) formWrap.classList.remove("hidden");
+      try {
+        const fd = new FormData(form);
 
-        if (form) form.reset();
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: fd
+        });
 
-        // Re-enable button
+        const data = await res.json();
+
+        if (data && data.ok) {
+          showSuccessUI();
+          if (form) form.reset();
+          if (window.turnstile) {
+            try { window.turnstile.reset(); } catch (e) {}
+          }
+        } else {
+          alert((data && data.msg) ? data.msg : "Submission failed");
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Request Free Audit";
+          }
+          if (window.turnstile) {
+            try { window.turnstile.reset(); } catch (e) {}
+          }
+        }
+      } catch (err) {
+        alert("Network error. Please try again.");
         if (btn) {
           btn.disabled = false;
           btn.textContent = "Request Free Audit";
         }
-
-        // Reset Turnstile for fresh token
         if (window.turnstile) {
           try { window.turnstile.reset(); } catch (e) {}
         }
-      });
-    }
-  </script>
+      }
+    });
+  }
+
+  // “Submit another request”
+  if (newRequestLink) {
+    newRequestLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      resetForNewRequest();
+    });
+  }
+</script>
 </body>
 </html>
