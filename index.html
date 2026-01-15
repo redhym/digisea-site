@@ -6,7 +6,7 @@
   <title>DigiSea — Business Automation for Local Businesses</title>
   <meta name="description" content="DigiSea helps local businesses stop losing customers by automatically replying to missed calls, messages, and booking requests." />
 
-  <!-- Tailwind -->
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Cloudflare Turnstile -->
@@ -218,61 +218,67 @@
             <p class="mt-1 text-sm">
               We’ll get back to you shortly to discuss your automation setup.
             </p>
+            <p class="mt-3 text-sm">
+              <a href="#contact" id="newRequestLink" class="underline">Submit another request</a>
+            </p>
           </div>
 
-          <form id="leadForm" method="POST"
-                action="https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec"
-                class="space-y-4">
+          <!-- Form wrapper (we hide this after submit) -->
+          <div id="formWrap">
+            <form id="leadForm" method="POST"
+                  action="https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec"
+                  class="space-y-4">
 
-            <div>
-              <label class="text-sm font-medium">Name</label>
-              <input name="name" required
-                     class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
-                     placeholder="Your name" />
-            </div>
+              <div>
+                <label class="text-sm font-medium">Name</label>
+                <input name="name" required
+                       class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
+                       placeholder="Your name" />
+              </div>
 
-            <div>
-              <label class="text-sm font-medium">Business name</label>
-              <input name="business" required
-                     class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
-                     placeholder="Business name" />
-            </div>
+              <div>
+                <label class="text-sm font-medium">Business name</label>
+                <input name="business" required
+                       class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
+                       placeholder="Business name" />
+              </div>
 
-            <div>
-              <label class="text-sm font-medium">Phone</label>
-              <input name="phone" required
-                     class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
-                     placeholder="Best number to call" />
-            </div>
+              <div>
+                <label class="text-sm font-medium">Phone</label>
+                <input name="phone" required
+                       class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
+                       placeholder="Best number to call" />
+              </div>
 
-            <div>
-              <label class="text-sm font-medium">Email</label>
-              <input name="email" type="email" required
-                     class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
-                     placeholder="you@business.com" />
-            </div>
+              <div>
+                <label class="text-sm font-medium">Email</label>
+                <input name="email" type="email" required
+                       class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
+                       placeholder="you@business.com" />
+              </div>
 
-            <div>
-              <label class="text-sm font-medium">What’s your biggest admin problem?</label>
-              <textarea name="message" rows="4" required
-                        class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
-                        placeholder="e.g., We miss calls during busy hours, bookings are manual, slow follow-up..."></textarea>
-            </div>
+              <div>
+                <label class="text-sm font-medium">What’s your biggest admin problem?</label>
+                <textarea name="message" rows="4" required
+                          class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
+                          placeholder="e.g., We miss calls during busy hours, bookings are manual, slow follow-up..."></textarea>
+              </div>
 
-            <!-- Turnstile widget -->
-            <div class="mt-2">
-              <div class="cf-turnstile" data-sitekey="0x4AAAAAACMldyImVLbpp-hL"></div>
-            </div>
+              <!-- Turnstile widget -->
+              <div class="mt-2">
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAACMldyImVLbpp-hL"></div>
+              </div>
 
-            <button id="submitBtn" type="submit"
-                    class="w-full rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800">
-              Request Free Audit
-            </button>
+              <button id="submitBtn" type="submit"
+                      class="w-full rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800">
+                Request Free Audit
+              </button>
 
-            <p class="text-xs text-slate-500">
-              This form is protected by Cloudflare Turnstile to prevent spam.
-            </p>
-          </form>
+              <p class="text-xs text-slate-500">
+                This form is protected by Cloudflare Turnstile to prevent spam.
+              </p>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -288,27 +294,61 @@
 
   <script>
     // Footer year
-    document.getElementById("year").textContent = new Date().getFullYear();
+    const yearEl = document.getElementById("year");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-    // Show thank-you message after redirect
+    // Detect successful submission via query param
     const params = new URLSearchParams(window.location.search);
-    if (params.get("submitted") === "true") {
-      const el = document.getElementById("thankyou");
-      if (el) el.classList.remove("hidden");
+    const submitted = params.get("submitted") === "true";
 
-      // Reset Turnstile after success (prevents duplicate token issues)
+    const thankyou = document.getElementById("thankyou");
+    const formWrap = document.getElementById("formWrap");
+    const form = document.getElementById("leadForm");
+    const btn = document.getElementById("submitBtn");
+    const newRequestLink = document.getElementById("newRequestLink");
+
+    if (submitted) {
+      // Show thank-you, hide form
+      if (thankyou) thankyou.classList.remove("hidden");
+      if (formWrap) formWrap.classList.add("hidden");
+
+      // Reset Turnstile token after redirect (prevents duplicate token errors)
       if (window.turnstile) {
         try { window.turnstile.reset(); } catch (e) {}
       }
     }
 
     // Prevent double-submit
-    const form = document.getElementById("leadForm");
-    const btn = document.getElementById("submitBtn");
     if (form && btn) {
       form.addEventListener("submit", () => {
         btn.disabled = true;
         btn.textContent = "Sending…";
+      });
+    }
+
+    // Submit another request (cleans URL and shows form again)
+    if (newRequestLink) {
+      newRequestLink.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        // Remove query param without reloading
+        const cleanUrl = window.location.pathname + "#contact";
+        history.replaceState(null, "", cleanUrl);
+
+        // Hide thank-you, show form
+        if (thankyou) thankyou.classList.add("hidden");
+        if (formWrap) formWrap.classList.remove("hidden");
+
+        // Re-enable button
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Request Free Audit";
+        }
+
+        // Reset Turnstile for fresh token
+        if (window.turnstile) {
+          try { window.turnstile.reset(); } catch (e) {}
+        }
       });
     }
   </script>
