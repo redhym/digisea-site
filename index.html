@@ -7,7 +7,12 @@
     <title>DigiSea — Business Automation for Local Businesses</title>
     <meta name="description"
         content="DigiSea helps local businesses stop losing customers by automatically replying to missed calls, messages, and booking requests." />
+
+    <!-- Tailwind (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body class="bg-white text-slate-900">
@@ -64,6 +69,11 @@
                     <span class="rounded-full bg-slate-100 px-3 py-1">Booking + reminders</span>
                     <span class="rounded-full bg-slate-100 px-3 py-1">Leads tracked in one place</span>
                 </div>
+
+                <!-- Optional trust line -->
+                <p class="mt-5 text-sm text-slate-600">
+                    Setup in 48–72 hours • No lock-in contracts
+                </p>
             </div>
 
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6">
@@ -86,38 +96,8 @@
                 </div>
 
                 <p class="mt-5 text-sm text-slate-600">
-                    No apps to learn. No tech headaches. Setup in 48–72 hours.
+                    No apps to learn. No tech headaches.
                 </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Problem -->
-    <section class="border-t border-slate-200 bg-white">
-        <div class="mx-auto max-w-6xl px-4 py-14">
-            <h2 class="text-2xl font-bold">The problem</h2>
-            <p class="mt-2 text-slate-700">
-                Most local businesses lose customers because they can’t respond fast enough.
-            </p>
-
-            <div class="mt-8 grid gap-4 md:grid-cols-2">
-                <div class="rounded-2xl border border-slate-200 p-6">
-                    <div class="font-semibold">Missed calls = missed money</div>
-                    <p class="mt-2 text-slate-700">People don’t leave voicemails. They call the next business.</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 p-6">
-                    <div class="font-semibold">Admin overload</div>
-                    <p class="mt-2 text-slate-700">Enquiries come from calls, texts, socials, website forms — and get
-                        lost.</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 p-6">
-                    <div class="font-semibold">Bookings are manual</div>
-                    <p class="mt-2 text-slate-700">Staff spend time answering the same questions again and again.</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 p-6">
-                    <div class="font-semibold">Slow follow-up</div>
-                    <p class="mt-2 text-slate-700">Hot leads go cold if you don’t reply quickly.</p>
-                </div>
             </div>
         </div>
     </section>
@@ -217,10 +197,6 @@
                     </ul>
                 </div>
             </div>
-
-            <p class="mt-6 text-sm text-slate-600">
-                *Final pricing depends on your current tools (phone system, WhatsApp, booking, website).
-            </p>
         </div>
     </section>
 
@@ -242,12 +218,20 @@
                             <li>• Estimated setup cost + timeframe</li>
                         </ul>
                     </div>
+
+                    <!-- Optional direct contact -->
+                    <!--
+          <div class="mt-6 text-sm text-slate-700">
+            Or email: <a class="underline" href="mailto:digisea.au@gmail.com">digisea.au@gmail.com</a>
+          </div>
+          -->
                 </div>
 
                 <div class="rounded-2xl border border-slate-200 p-6">
-                    <!-- IMPORTANT: replace ACTION_URL below with your Google Apps Script Web App URL -->
-                    <form id="leadForm" class="space-y-4" method="POST"
-                        action="https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec">
+                    <!-- Replace the action URL with your Apps Script Web App URL -->
+                    <form method="POST"
+                        action="https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec"
+                        class="space-y-4">
                         <div>
                             <label class="text-sm font-medium">Name</label>
                             <input name="name" required class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -278,12 +262,19 @@
                                 placeholder="e.g., We miss calls during busy hours, bookings are manual, slow follow-up..."></textarea>
                         </div>
 
+                        <!-- Cloudflare Turnstile widget -->
+                        <div class="mt-2">
+                            <div class="cf-turnstile" data-sitekey="0x4AAAAAACMldyImVLbpp-hL"></div>
+                        </div>
+
                         <button type="submit"
                             class="w-full rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800">
                             Request Free Audit
                         </button>
 
-                        <p id="formStatus" class="text-sm text-slate-600"></p>
+                        <p class="text-xs text-slate-500">
+                            This form is protected by Cloudflare Turnstile to prevent spam.
+                        </p>
                     </form>
                 </div>
             </div>
@@ -300,29 +291,6 @@
 
     <script>
         document.getElementById("year").textContent = new Date().getFullYear();
-
-        // Optional: show friendly submit status (works well with Apps Script)
-        const form = document.getElementById("leadForm");
-        const statusEl = document.getElementById("formStatus");
-
-        form.addEventListener("submit", async (e) => {
-            // If you don't want JS handling, remove everything inside this listener.
-            e.preventDefault();
-            statusEl.textContent = "Sending…";
-
-            try {
-                const formData = new FormData(form);
-                const res = await fetch(form.action, { method: "POST", body: formData });
-                if (res.ok) {
-                    form.reset();
-                    statusEl.textContent = "Thanks! We’ll get back to you shortly.";
-                } else {
-                    statusEl.textContent = "Something went wrong. Please try again.";
-                }
-            } catch (err) {
-                statusEl.textContent = "Network error. Please try again.";
-            }
-        });
     </script>
 </body>
 
