@@ -273,7 +273,7 @@
                             <div class="cf-turnstile" data-sitekey="0x4AAAAAACMldyImVLbpp-hL"></div>
                         </div>
 
-                        <button type="submit"
+                        <button id="submitBtn" type="submit"
                             class="w-full rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800">
                             Request Free Audit
                         </button>
@@ -295,14 +295,22 @@
         </div>
     </footer>
 
-    <script>
-        document.getElementById("year").textContent = new Date().getFullYear();
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("submitted") === "true") {
-          const el = document.getElementById("thankyou");
-          if (el) el.classList.remove("hidden");
-        }
-   </script>
+<script>
+  // Footer year
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Show thank-you message after redirect
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("submitted") === "true") {
+    const el = document.getElementById("thankyou");
+    if (el) el.classList.remove("hidden");
+
+    // Reset Turnstile token so re-submits don't reuse it
+    if (window.turnstile) {
+      try { window.turnstile.reset(); } catch(e) {}
+    }
+  }
+</script>
 </body>
 
 </html>
