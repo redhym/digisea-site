@@ -295,33 +295,34 @@
         </div>
     </footer>
 
-<script>
-  // Footer year
-  document.getElementById("year").textContent = new Date().getFullYear();
+    <script>
+        // Footer year
+        document.getElementById("year").textContent = new Date().getFullYear();
 
-  // Show thank-you message after redirect
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("submitted") === "true") {
-    const el = document.getElementById("thankyou");
-    if (el) el.classList.remove("hidden");
+        // Show thank-you message after redirect
+       const params = new URLSearchParams(window.location.search);
+       if (params.get("submitted") === "true") {
+       const el = document.getElementById("thankyou");
+       if (el) el.classList.remove("hidden");
 
-    // Reset Turnstile token after successful submit
-    if (window.turnstile) {
-      try { window.turnstile.reset(); } catch(e) {}
+       // Reset Turnstile token after successful submit
+       if (window.turnstile) {
+         try { window.turnstile.reset(); } catch(e) {}
+       }
+     }
+
+     // Prevent double-submit
+     const form = document.getElementById("leadForm");
+     const btn = document.getElementById("submitBtn");
+     if (form && btn) {
+       form.addEventListener("submit", () => {
+         btn.disabled = true;
+         btn.textContent = "Sending…";
+       });
     }
-  }
+ </script>
 
-  // Prevent double-submit
-  const form = document.getElementById("leadForm");
-  const btn = document.getElementById("submitBtn");
-  if (form && btn) {
-    form.addEventListener("submit", () => {
-      btn.disabled = true;
-      btn.textContent = "Sending…";
-    });
-  }
-</script>
-</body>
+
 </body>
 
 </html>
