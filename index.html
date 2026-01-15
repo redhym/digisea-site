@@ -291,17 +291,8 @@
   </footer>
 
 <script>
-
-  console.log("DigiSea script loaded ✅");
-
-  console.log("leadForm:", document.getElementById("leadForm"));
-  console.log("submitBtn:", document.getElementById("submitBtn"));
-  // === CONFIG: put your Apps Script /exec URL here ===
+document.addEventListener("DOMContentLoaded", () => {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8Ok2-csjZ-8Gpg-8mSRYDqL2SS9g4IHY5QmwB2pJa_EMmCuXYl3EtTdHWHvFd9cjoLA/exec";
-
-  // Footer year
-  const yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   const thankyou = document.getElementById("thankyou");
   const formWrap = document.getElementById("formWrap");
@@ -330,7 +321,6 @@
     }
   }
 
-  // Submit handler (no page navigation)
   if (form && btn) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -340,12 +330,7 @@
 
       try {
         const fd = new FormData(form);
-
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: fd
-        });
-
+        const res = await fetch(SCRIPT_URL, { method: "POST", body: fd });
         const data = await res.json();
 
         if (data && data.ok) {
@@ -377,13 +362,13 @@
     });
   }
 
-  // “Submit another request”
   if (newRequestLink) {
     newRequestLink.addEventListener("click", (e) => {
       e.preventDefault();
       resetForNewRequest();
     });
   }
+});
 </script>
 </body>
 </html>
