@@ -312,6 +312,8 @@
       if (thankyou) thankyou.classList.remove("hidden");
       if (formWrap) formWrap.classList.add("hidden");
 
+      if (thankyou) thankyou.scrollIntoView({ behavior: "smooth", block: "start" });
+
       // Reset Turnstile token after redirect (prevents duplicate token errors)
       if (window.turnstile) {
         try { window.turnstile.reset(); } catch (e) {}
