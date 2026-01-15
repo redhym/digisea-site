@@ -305,12 +305,23 @@
     const el = document.getElementById("thankyou");
     if (el) el.classList.remove("hidden");
 
-    // Reset Turnstile token so re-submits don't reuse it
+    // Reset Turnstile token after successful submit
     if (window.turnstile) {
       try { window.turnstile.reset(); } catch(e) {}
     }
   }
+
+  // Prevent double-submit
+  const form = document.getElementById("leadForm");
+  const btn = document.getElementById("submitBtn");
+  if (form && btn) {
+    form.addEventListener("submit", () => {
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+    });
+  }
 </script>
+</body>
 </body>
 
 </html>
